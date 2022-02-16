@@ -66,7 +66,6 @@ function appendHTML(element, type, html){
     element.innerHTML += html;
 }
 
-//TODO
 function addToCart(){
 
   finalProduct = {
@@ -78,6 +77,7 @@ function addToCart(){
 
   let cartProducts = [];
   let jsonStr = storage.getItem('products');
+
   if(jsonStr){
     cartProducts = JSON.parse(jsonStr);
     cartProducts.push(finalProduct);
@@ -91,6 +91,6 @@ function addToCart(){
   storage.setItem('products', jsonStr);
   
   //TODO manage input errors (min/max, color option 0)
-  
+
   window.location.href = "http://127.0.0.1:5500/html/cart.html";
 }
