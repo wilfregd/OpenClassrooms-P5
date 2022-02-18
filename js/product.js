@@ -31,7 +31,7 @@ fetch("http://localhost:3000/api/products/" + id).then(function(result){
 function drawProduct(product){
 
   //Image
-  var imgStr = "<img src='" + product.imageUrl + "' alt='" + product.altTxt + "'>";
+  var imgStr = `<img src='${product.imageUrl}' alt='${product.altTxt}'>`;
   appendHTML("item__img", 1, imgStr);
 
   //Info
@@ -43,7 +43,7 @@ function drawProduct(product){
   //Couleurs
   for(var i = 0; i < product.colors.length; i++){
       var color = product.colors[i];
-      var str = "<option value='" + color + "'>" + color + "</option>";
+      var str = `<option value='${color}'>${color}</option>`;
       
       appendHTML("colors", 0, str)
   }

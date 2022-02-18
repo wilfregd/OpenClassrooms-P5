@@ -1,6 +1,10 @@
 //Constantes
 const storage = window.localStorage;
 
+//> Inputs
+const INPUT_FIRSTNAME = "firstName";
+const INPUT_LASTNAME = "lastName";
+
 //> Erreurs
 const ERR_FIRSTNAME_EMPTY = "Veuillez entrer votre prénom.";
 const ERR_LASTNAME_EMPTY = "Veuillez entrer votre nom.";
@@ -10,10 +14,7 @@ const ERR_ADDRESS_EMPTY = "Veuillez entrer votre adresse.";
 let cartProducts = [];
 let totalQuantity = 0;
 let totalPrice = 0;
-let errors = {
-    'firstName': [],
-    'lastName': [],
-};
+let hasErrors = false;
 
 //-------------------------------
 
@@ -52,20 +53,20 @@ function updateCart(){
             var productInfo = cartProduct.productInfo;
 
             var htmlStr = 
-            "<article class='cart__item' data-id='" + id + "' data-color='" + color + "'>" +
+            `<article class='cart__item' data-id='${id}' data-color='${color}'>` +
                 "<div class='cart__item__img'>" +
-                    "<img src='" + productInfo.imageUrl + "' alt=\"" + productInfo.altTxt + "\">" +
+                    `<img src='${productInfo.imageUrl}' alt='${productInfo.altTxt}'>` +
                 "</div>" +
                 "<div class='cart__item__content'>" +
                     "<div class='cart__item__content__description'>" +
-                        "<h2>" + productInfo.name + "</h2>" +
-                        "<p>" + color + "</p>" +
-                        "<p>" + productInfo.price + "€</p>" +
+                        `<h2>${productInfo.name}</h2>` +
+                        `<p>${color}</p>` +
+                        `<p>${productInfo.price}€</p>` +
                     "</div>" +
                     "<div class='cart__item__content__settings'>" +
                         "<div class='cart__item__content__settings__quantity'>"+
                             "<p>Qté :</p>"+
-                            '<input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="' + quantity + '">' +
+                            `<input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value='${quantity}'>` +
                         "</div>" +
                         '<div class="cart__item__content__settings__delete">' +
                             '<p class="deleteItem">Supprimer</p>' +
@@ -161,30 +162,53 @@ function deleteItem(index){
 
 //Vérification des inputs
 function validateOrder(){
-    console.log(document.getElementById('firstName').value);
-
-    //Prénom
-    let inFirstName = document.getElementById('firstName').value;
-    if(inFirstName === ''){
-        errors.firstName.push(ERR_FIRSTNAME_EMPTY);
-    }
-
-    //Nom
-    let inLastName = document.getElementById('lastName').value;
-    if(inLastName === ''){
-        errors.lastName.push(ERR_LASTNAME_EMPTY);
-    }
-
-    console.log(Object.keys(errors).length);
-
-    if(errors.length == 0){
-        console.log("no error!");
-    }
-    else{
-        console.log("errors!");
+    if(!checkInputErrors()){
+        //On continue
     }
 }
 
-function addError(input){
+//Vérifie les inputs puis renvoie 'true' si il y a une erreur dans les inputs, 'false' si aucune erreur
+function checkInputErrors(){
+    clearErrors();
 
+    //Prénom
+    let inFirstName = document.getElementById(INPUT_FIRSTNAME).value;
+    if(inFirstName === ''){
+        drawError(INPUT_FIRSTNAME, ERR_FIRSTNAME_EMPTY);
+    }
+
+    //Nom
+    let inLastName = document.getElementById(INPUT_LASTNAME).value;
+    if(inLastName === ''){
+        drawError(INPUT_LASTNAME, ERR_LASTNAME_EMPTY);
+    }
+
+    return hasErrors;
+}
+
+function clearErrors(){
+    let errors = document.querySelectorAll('.error');
+
+    for(let i = 0; i < errors.length; i++){
+        errors[i].remove();
+    }
+
+}
+
+function drawError(input, error){
+    let hasErrors = true;
+
+    let inElement = document.getElementById(input);
+
+    let errElement = document.createElement('span');
+    errElement.classList.add('error');
+
+    errElement.style.backgroundColor = '#ff3636';
+    errElement.style.borderRadius = '10px';
+    errElement.style.padding = '5px';
+    errElement.style.fontSize = '0.8em';
+    errElement.style.color = '#fff';
+    errElement.innerHTML = error;
+    
+    inElement.parentNode.insertBefore(errElement, inElement);
 }
