@@ -1,13 +1,33 @@
-//Variables
+//Constantes
 const storage = window.localStorage;
-var cartProducts = [];
+
+//> Erreurs
+const ERR_FIRSTNAME_EMPTY = "Veuillez entrer votre prénom.";
+const ERR_LASTNAME_EMPTY = "Veuillez entrer votre nom.";
+const ERR_ADDRESS_EMPTY = "Veuillez entrer votre adresse.";
+
+//Variables
+let cartProducts = [];
 let totalQuantity = 0;
 let totalPrice = 0;
+let errors = {
+    'firstName': [],
+    'lastName': [],
+};
 
-//Update initial
+//-------------------------------
+
+//Init
+document.getElementById('order').onclick = function(){
+    validateOrder();
+};
+
+//Update initial, premier dessin des produits du panier
 updateCart();
 
-//Update dessine
+//-------------------------------
+
+//Mise à jour de la liste des produits, affichage dans le DOM
 function updateCart(){
 
     //Effacer les données précédente (update après suppression)
@@ -54,7 +74,7 @@ function updateCart(){
                 "</div>" +
             "</article>";
 
-            //Le prix final est additionné
+            //Le prix final est additionné, incrémentation de la quantité
             totalQuantity++;
             totalPrice += (parseInt(quantity) * parseFloat(productInfo.price));
 
@@ -82,22 +102,19 @@ function updateCart(){
             };
         }
 
-        //Prix total
+        //Mise à jour du prix total
         updatePrice();
     }
 }
 
+//Mise à jour du total final
 function updatePrice(){
-
-    //On obtiens tout les éléments
-
     document.getElementById('totalQuantity').innerHTML = totalQuantity.toString();
     document.getElementById('totalPrice').innerHTML = totalPrice.toString();
 }
 
+//Effacter la liste des produits du panier (DOM)
 function clearCart(){
-
-    //On supprime les entrées du DOM
     let container = document.getElementById('cart__items');
     if(container.childElementCount > 0){
         container.innerHTML = "";
@@ -110,6 +127,7 @@ function clearCart(){
     updatePrice();
 }
 
+//Obtenir le tableau des produits à partir du stockage
 function getCartProducts(){
     let products = [];
 
@@ -121,11 +139,13 @@ function getCartProducts(){
     return products;
 }
 
+//Mise à jour de la quantité de l'objet sélectionné lors d'un changement de valeur
 function updateQuantity(index, obj){
     cartProducts[index].quantity = obj.value;
     updateStorageItems();
 }
 
+//Mise à jour du tableau des produits du stockage
 function updateStorageItems(){
     const jsonStr = JSON.stringify(cartProducts);
     storage.setItem('products', jsonStr);
@@ -133,7 +153,38 @@ function updateStorageItems(){
     updateCart();
 }
 
+//Suppression d'un produit du panier puis mise à jour de la liste
 function deleteItem(index){
     cartProducts.splice(index, 1);
     updateStorageItems();
+}
+
+//Vérification des inputs
+function validateOrder(){
+    console.log(document.getElementById('firstName').value);
+
+    //Prénom
+    let inFirstName = document.getElementById('firstName').value;
+    if(inFirstName === ''){
+        errors.firstName.push(ERR_FIRSTNAME_EMPTY);
+    }
+
+    //Nom
+    let inLastName = document.getElementById('lastName').value;
+    if(inLastName === ''){
+        errors.lastName.push(ERR_LASTNAME_EMPTY);
+    }
+
+    console.log(Object.keys(errors).length);
+
+    if(errors.length == 0){
+        console.log("no error!");
+    }
+    else{
+        console.log("errors!");
+    }
+}
+
+function addError(input){
+
 }
