@@ -1,14 +1,25 @@
 //Constantes
 const storage = window.localStorage;
 
+/*
+    Les noms des inputs et les erreurs sont définis en haut du fichier.
+    Ils peuvent être facilement modifiés et rendent le code plus lisible.
+*/
+
 //> Inputs
 const INPUT_FIRSTNAME = "firstName";
 const INPUT_LASTNAME = "lastName";
+const INPUT_ADDRESS = "address";
+const INPUT_CITY = "city";
+const INPUT_EMAIL = "email";
 
 //> Erreurs
 const ERR_FIRSTNAME_EMPTY = "Veuillez entrer votre prénom.";
 const ERR_LASTNAME_EMPTY = "Veuillez entrer votre nom.";
 const ERR_ADDRESS_EMPTY = "Veuillez entrer votre adresse.";
+const ERR_CITY_EMPTY = "Veuillez entrer votre ville.";
+const ERR_EMAIL_EMPTY = "Veuillez entrer votre email.";
+const ERR_EMAIL_REGEX = "L'email n'est pas valide. Le format doit ressembler à 'name@server.dom'";
 
 //Variables
 let cartProducts = [];
@@ -19,9 +30,7 @@ let hasErrors = false;
 //-------------------------------
 
 //Init
-document.getElementById('order').onclick = function(){
-    validateOrder();
-};
+document.getElementById('order').addEventListener('click', validateOrder);
 
 //Update initial, premier dessin des produits du panier
 updateCart();
@@ -36,10 +45,6 @@ function updateCart(){
 
     //On récupère les produits du stockage local
     cartProducts = getCartProducts();
-
-    console.log(cartProducts);
-
-
 
     if(cartProducts.length > 0)
     {
@@ -150,7 +155,6 @@ function updateQuantity(index, obj){
 function updateStorageItems(){
     const jsonStr = JSON.stringify(cartProducts);
     storage.setItem('products', jsonStr);
-    console.log(storage.getItem('products'));
     updateCart();
 }
 
@@ -161,31 +165,70 @@ function deleteItem(index){
 }
 
 //Vérification des inputs
-function validateOrder(){
+function validateOrder(event){
+    event.preventDefault();
+    event.stopPropagation();
+
     if(!checkInputErrors()){
-        //On continue
+        sendFinalCart();
+    }
+    else{ //Erreurs, on ne continue pas le "submit"
+        event.preventDefault();
+        event.stopPropagation();
     }
 }
 
-//Vérifie les inputs puis renvoie 'true' si il y a une erreur dans les inputs, 'false' si aucune erreur
+//Vérifie les inputs en affichant les erreurs rencontrées
+//Renvoie 'true' si il y a une erreur dans les inputs, 'false' si aucune erreur
 function checkInputErrors(){
     clearErrors();
 
-    //Prénom
-    let inFirstName = document.getElementById(INPUT_FIRSTNAME).value;
-    if(inFirstName === ''){
-        drawError(INPUT_FIRSTNAME, ERR_FIRSTNAME_EMPTY);
-    }
+    /*
+        La séparation des appels à "checkEmptyInput" ici pour chaque input
+        permet, comme pour l'email, de continuer à vérifier d'autres erreurs si besoin
+    */
 
-    //Nom
-    let inLastName = document.getElementById(INPUT_LASTNAME).value;
-    if(inLastName === ''){
-        drawError(INPUT_LASTNAME, ERR_LASTNAME_EMPTY);
+    //--- Prénom ---
+    checkEmptyInput(INPUT_FIRSTNAME, ERR_FIRSTNAME_EMPTY);
+
+     //--- Nom ---
+    checkEmptyInput(INPUT_LASTNAME, ERR_LASTNAME_EMPTY);
+
+    //--- Adresse ---
+    checkEmptyInput(INPUT_ADDRESS, ERR_ADDRESS_EMPTY);
+
+    //--- Ville ---
+    checkEmptyInput(INPUT_CITY, ERR_CITY_EMPTY);
+
+    //--- Email ---
+    let emailValue = getInputValue(INPUT_EMAIL);
+    if(checkEmptyInput(INPUT_EMAIL, ERR_EMAIL_EMPTY)){         
+         const regex = new RegExp(/^[\w-\.]+@([\w-]+\.)+[\w-]+$/); //Regex 'name@server.dom'
+         if(!regex.test(emailValue)){
+             drawError(INPUT_EMAIL, ERR_EMAIL_REGEX);
+         }
     }
 
     return hasErrors;
 }
 
+//S'occupe de l'erreur en cas d'input vide et renvoie "true" si l'input n'a pas d'erreur, "false" en cas d'erreur
+function checkEmptyInput(input, error){
+
+    let element = document.getElementById(input);
+
+    //On retire l'attribut "required" qui est répétitif, le JS prend le relai
+    element.removeAttribute('required');
+
+    if(element.value === ''){
+        drawError(input, error);
+        return false;
+    }
+
+    return true;
+}
+
+//Nettoie les erreurs affichées dans le DOM
 function clearErrors(){
     let errors = document.querySelectorAll('.error');
 
@@ -195,11 +238,11 @@ function clearErrors(){
 
 }
 
+//Ecrit une erreur dans le DOM, à l'input donné
 function drawError(input, error){
-    let hasErrors = true;
+    hasErrors = true;
 
     let inElement = document.getElementById(input);
-
     let errElement = document.createElement('span');
     errElement.classList.add('error');
 
@@ -211,4 +254,59 @@ function drawError(input, error){
     errElement.innerHTML = error;
     
     inElement.parentNode.insertBefore(errElement, inElement);
+}
+
+//Rends l'obtention de la valeur d'un input plus facile à lire
+function getInputValue(input){
+    return document.getElementById(input).value;
+}
+
+//Envoie le panier au serveur après la vérification
+//Les données sont envoyées sous forme de Json
+function sendFinalCart(){
+    //Création de l'objet à envoyer
+    let ids = [];
+
+    for(let i = 0; i < cartProducts.length; i++){
+        ids.push(cartProducts[i].id);
+    }
+
+    const orderObj = {
+        contact: {
+            firstName: getInputValue(INPUT_FIRSTNAME),
+            lastName: getInputValue(INPUT_LASTNAME),
+            address: getInputValue(INPUT_ADDRESS),
+            city: getInputValue(INPUT_CITY),
+            email: getInputValue(INPUT_EMAIL)
+        },
+        products: ids,
+    };
+
+    console.log(orderObj);
+
+    const fetchOpt = {
+        body: JSON.stringify(orderObj),
+        method: "POST",
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        }
+    };
+
+    //Envoi des données
+    fetch("http://localhost:3000/api/products/order/", fetchOpt)
+    .then(function(res){
+        if(res.ok){
+            return res.json();
+        }
+    }).then(function(value){
+        redirectWithValidation(value);
+    }).catch((err) => {
+        console.log("Impossible de valider les données: " + err.message)
+    });
+}
+
+//Si le POST des informations est validé, on redirige avec l'id de commande obtenu
+function redirectWithValidation(resJson){
+    document.location.href = "confirmation.html?id=" + resJson.orderId;
 }

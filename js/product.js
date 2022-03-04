@@ -66,6 +66,8 @@ function appendHTML(element, type, html){
     element.innerHTML += html;
 }
 
+//Ajout du produit dans le panier, avec les informations qui lui correspondent
+//Redirection vers le panier
 function addToCart(){
 
   finalProduct = {
@@ -89,8 +91,6 @@ function addToCart(){
 
   jsonStr = JSON.stringify(cartProducts);
   storage.setItem('products', jsonStr);
-  
-  //TODO manage input errors (min/max, color option 0)
 
-  window.location.href = "http://127.0.0.1:5500/html/cart.html";
+  window.location.href = "cart.html";
 }

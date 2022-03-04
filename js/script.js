@@ -1,3 +1,4 @@
+//Obtention des produits et affichage sur la page
 fetch("http://localhost:3000/api/products").then(function(result){
                 if(result.ok){
                   return result.json();
