@@ -21,3 +21,9 @@ Le serveur (NodeJS) est trouvable <a href="https://github.com/training-dev-fr/P5
 <li>Modifier le panier (quantité, supprimer)</li>
 <li>Confirmer la commande (avec vérification des informations utilisateur)</li>
 </ul>
+
+<h4>Preview du site:</h4>
+<img src="https://github.com/wilfregd/OpenClassrooms-P5/blob/main/screenshots/kanap_index.png" style="width:500px">
+<img src="https://github.com/wilfregd/OpenClassrooms-P5/blob/main/screenshots/kanap_product.png" style="width:500px">
+<img src="https://github.com/wilfregd/OpenClassrooms-P5/blob/main/screenshots/kanap_cart.png" style="width:500px">
+<img src="https://github.com/wilfregd/OpenClassrooms-P5/blob/main/screenshots/kanap_confirmation.png" style="width:500px">
