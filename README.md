@@ -13,3 +13,11 @@ Le serveur (NodeJS) est trouvable <a href="https://github.com/training-dev-fr/P5
 <li>Communiquer avec un serveur et sa base de données</li>
 <li>Mise en place d'un plan de test</li>
 </ul>
+
+<h4>Features:</h4>
+<ul>
+<li>Obtenir les produits</li>
+<li>Ajouter les produits au panier avec une quantité définie</li>
+<li>Modifier le panier (quantité, supprimer)</li>
+<li>Confirmer la commande (avec vérification des informations utilisateur)</li>
+</ul>
